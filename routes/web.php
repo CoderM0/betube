@@ -1,0 +1,68 @@
+<?php
+
+use App\Http\Controllers\BaseController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserChannelController;
+use App\Http\Controllers\VidChannelController;
+use App\Models\Video;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/', function () {
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get("/search", [BaseController::class, 'search'])->name("user.search");
+    Route::get("/channels/create", [BaseController::class, 'create_channel'])->name("user.channel.create");
+    Route::post("/channels/store", [BaseController::class, 'store_channel'])->name("user.channel.store");
+    Route::get("/videos/{vid}/watch", [BaseController::class, 'watch_video'])->name("user.video.view");
+    Route::post("/videos/{vid}/comment/add", [CommentController::class, 'add_comment'])->name("user.comment.add");
+    Route::post("videos/{video_id}/comments/{comment_id}/reply/add", [CommentController::class, 'add_reply'])->name("user.reply.add");
+    Route::post('/videos/{video}/like', [BaseController::class, 'like'])->name("user.video.like");
+    Route::delete('/videos/{video}/unlike', [BaseController::class, 'unlike'])->name("user.video.unlike");
+    Route::get('/videos/liked', [BaseController::class, 'liked_videos'])->name("user.videos.liked");
+    Route::get('/videos/watchedlater', [BaseController::class, 'watched_later_videos'])->name("user.videos.watched_later");
+    // Route::get('/playlists/{play_list_id}', [BaseController::class, 'view_playlist'])->name("playlist.view");
+    Route::get('/play/playlist/{playlist}', [BaseController::class, 'playPlaylist'])->name('play.playlist');
+    Route::get('/videos/hsitory/view', [BaseController::class, 'view_history'])->name("user.history.view");
+    Route::post('/videos/{video}/watchlater', [BaseController::class, 'add_to_watch_later'])->name("user.video.watchlater");
+});
+
+///user channel
+Route::middleware(['auth', 'can:has-channel'])->controller(UserChannelController::class)->prefix('mychannel')->group(function () {
+    Route::get("/view",  'view_channel')->name("user.channel.view");
+    Route::get("/videos",  'my_channel_videos')->name("user.channel.videos");
+    Route::get("/playlists",  'my_channel_playlists')->name("user.channel.playlists");
+    Route::get("/upload",  'upload_video')->name("user.videos.upload");
+    Route::get("/playlist/create",  'create_playlist')->name("user.playlists.create");
+    Route::post("/playlist/store",  'store_playlist')->name("user.playlist.store");
+    Route::post("/upload/save",  'save_video')->name("user.videos.save");
+});
+
+//other channels
+Route::middleware(['auth'])->controller(VidChannelController::class)->prefix("channel")->group(function () {
+    Route::get("/{channel_id}/home", 'channel_home')->name("channels.channel.home"); //was user.channel.home
+    Route::get("/{channel_id}/videos", 'channel_videos')->name("channels.channel.videos"); //was user.channel.videos
+    Route::get("/{channel_id}/playlists", 'channel_playlists')->name("channels.channel.playlists"); //was user.channel.playlists
+});
+Route::get('/home', function () {
+
+    $videos = Video::with(["vid_channel", "watchLaterByUsers"])->get();
+    return Inertia::render('Dashboard', ['videos' => $videos]);
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__ . '/auth.php';

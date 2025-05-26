@@ -1,0 +1,197 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\PlayList;
+use App\Models\User;
+use App\Models\VidChannel;
+use App\Models\Video;
+use App\Models\WatchHistory;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+
+class BaseController extends Controller
+{
+    public function search()
+    {
+        $searchterm = request()->input('search');
+        $videos = Video::query()
+            ->when($searchterm, function ($query, $searchterm) {
+                return $query->where('title', 'LIKE', "%{$searchterm}%")
+                    ->orWhere('description', 'LIKE', "%{$searchterm}%");
+            })->get();
+        return Inertia::render("SearchResult", ['videos' => $videos, 'serachterm' => $searchterm]);
+    }
+    public function create_channel()
+    {
+        if (Auth::user()->is_publisher) {
+            dd("yes");
+        }
+        return Inertia::render("CreateChannel");
+    }
+    public function store_channel()
+    {
+
+        request()->validate([
+            'channel_name' => 'required',
+            'description' => 'required',
+            'logo' => 'required|image',
+            'cover_img' => 'required|image'
+        ]);
+        $channel_name = request()->channel_name;
+        $logo_path = Storage::disk('public')->put("$channel_name/logo", request()->file("logo"));
+        $cover_path =  Storage::disk('public')->put("$channel_name/cover", request()->file("cover_img"));
+        VidChannel::create([
+            'channel_name' => request()->channel_name,
+            'description' => request()->description,
+            'logo' => $logo_path,
+            'user_id' => Auth::id(),
+            'cover_img' => $cover_path,
+        ]);
+        $user = User::find(Auth::id());
+        $user->is_publisher = true;
+        $user->save();
+
+        return redirect()->route("user.channel.view");
+    }
+    public function add_to_watch_later(Video $video)
+    {
+        $user = User::find(Auth::id());
+        if ($user->laterVideos->contains($video->id)) {
+            $user->laterVideos()->detach($video->id);
+        } else {
+            $user->laterVideos()->attach($video->id);
+        }
+
+        return redirect()->back();
+    }
+    public function playPlaylist($playlist, Request $request)
+    {
+        if (request()->type == "playlist") {
+            $playlist = PlayList::find($playlist);
+            $videos = $playlist->videos()->with(["vid_channel", "comments", "comments.user", "comments.parent_comment"])->get(); // Or paginate, etc.
+
+        } else if (request()->type == "likedvideos") {
+            $user = User::find(Auth::id());
+
+            $playlist = ["id" => 1, "name" => "liked videos", "videos" => $user->likedVideos];
+            $videos = $user->likedVideos()->with(["vid_channel", "comments", "comments.user", "comments.parent_comment"])->get();
+        } else if (request()->type == "watchlater") {
+            $user = User::find(Auth::id());
+
+            $playlist = ["id" => 1, "name" => "watch later videos", "videos" => $user->laterVideos];
+            $videos = $user->laterVideos()->with(["vid_channel", "comments", "comments.user", "comments.parent_comment"])->get();
+        }
+        $currentVideoId = $request->input('video');
+        $currentVideoIndex = 0;
+
+        if ($currentVideoId) {
+            $currentVideoIndex = $videos->search(function ($video) use ($currentVideoId) {
+                return $video->id == $currentVideoId;
+            });
+
+            if ($currentVideoIndex === false) {
+                $currentVideoIndex = 0; // Default to the first video if the requested one is not found
+            }
+        }
+        $userLiked = false;
+
+        if (Auth::check()) {
+            $userLiked =  $videos->get($currentVideoIndex)->likedByUsers()->where('user_id', Auth::id())->exists();
+        }
+        $currentUrl = request()->fullUrl();
+        $previousUrl = request()->header('Referer');
+
+        if ($previousUrl != $currentUrl) {
+
+            $videos->get($currentVideoIndex)->view_count += 1;
+            $videos->get($currentVideoIndex)->save();
+        }
+        WatchHistory::updateOrCreate(['user_id' => Auth::id(), 'video_id' => $videos->get($currentVideoIndex)->id], ['watched_at' => now()->format('Y-m-d H:i')]);
+        return Inertia::render('Player/PlayListPlayer', [
+            'playlist' => $playlist,
+            'videos' => $videos,
+            "list_type" => request()->type,
+            'userLiked' => $userLiked,
+            'currentVideoIndex' => $currentVideoIndex,
+            'currentVideo' => $videos->get($currentVideoIndex)->loadCount('likedByUsers'),
+        ]);
+    }
+    public function watch_video($vid)
+    {
+
+        $currentUrl = request()->fullUrl();
+        $previousUrl = request()->header('Referer');
+
+
+        $vid = Video::with(["vid_channel", "comments", "comments.user", "comments.parent_comment"])->find($vid);
+        WatchHistory::updateOrCreate(['user_id' => Auth::id(), 'video_id' => $vid->id], ['watched_at' => now()->format('Y-m-d H:i')]);
+
+
+        $userLiked = false;
+
+        if (Auth::check()) {
+            $userLiked = $vid->likedByUsers()->where('user_id', Auth::id())->exists();
+        }
+        if ($previousUrl != $currentUrl) {
+
+            $vid->view_count += 1;
+            $vid->save();
+        }
+        return Inertia::render("Player/PlayerHome", ['video' => $vid->loadCount('likedByUsers'), 'userLiked' => $userLiked]);
+    }
+
+
+    public function like(Video $video)
+    {
+        $user = User::find(Auth::id());
+        $user->likedVideos()->attach($video->id);
+
+
+        return redirect()->back();
+    }
+
+    /**
+     * Unlike a video.
+     */
+    public function unlike(Video $video)
+    {
+        $user = User::find(Auth::id());
+
+        $user->likedVideos()->detach($video->id);
+
+        return redirect()->back();
+    }
+    public function liked_videos()
+    {
+        $user = User::find(Auth::id());
+        $vids =  $user->likedVideos()->withPivot('created_at')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return Inertia::render("Lists/LikedVideos", ['videos' => $vids, 'list_name' => "Liked Videos", "type" => "likedvideos"]);
+    }
+
+    public function watched_later_videos()
+    {
+        $user = User::find(Auth::id());
+
+        return Inertia::render("Lists/LikedVideos", ['videos' => $user->laterVideos, 'list_name' => "Watch Later Videos", "type" => "watchlater"]);
+    }
+    public function view_history()
+    {
+        $user = User::with("watchedVideos")->find(Auth::id());
+        $vids =  $user->watchedVideos()->withPivot('watched_at')
+            ->orderBy('pivot_watched_at', 'desc')
+            ->get();
+
+        return Inertia::render("Lists/WatchHistory", ['videos' =>   $vids]);
+    }
+    //  public function view_playlist($play_list_id)
+    // {
+    //    $pl= PlayList::with("videos")->find($play_list_id);
+    //     return Inertia::render("Lists/WatchHistory", ['videos' => $pl]);
+    // }
+}
