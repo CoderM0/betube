@@ -8,7 +8,15 @@ export default function ManageVideos({ videos, channel }) {
         <MyChannelView channel={channel}>
             <div className=" my-2">
                 {videos.length == 0 ? (
-                    <p>Novideos in this channel yet</p>
+                    <p>
+                        No videos in your channel yet !.{" "}
+                        <Link
+                            href={route("user.videos.upload")}
+                            className="underline text-blue-600"
+                        >
+                            Upload your first video here
+                        </Link>{" "}
+                    </p>
                 ) : (
                     <div className="flex flex-wrap gap-5 my-2 items-center">
                         <Link
@@ -18,7 +26,14 @@ export default function ManageVideos({ videos, channel }) {
                             Upload new Video <CiSquarePlus size={"1.5rem"} />
                         </Link>
                         {videos.map((vid) => {
-                            return <VideoItem vid={vid} isOut={false} />;
+                            return (
+                                <VideoItem
+                                    vid={vid}
+                                    isOwner={true}
+                                    isOut={false}
+                                    key={vid.id}
+                                />
+                            );
                         })}
                     </div>
                 )}

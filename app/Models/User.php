@@ -62,6 +62,12 @@ class User extends Authenticatable
         return $this->belongsToMany(Video::class, 'watch_later')
             ->withTimestamps();
     }
+    public function userPlaylists()
+    {
+
+        return $this->belongsToMany(PlayList::class, 'saved_playlists')
+            ->withTimestamps();
+    }
     public function watchHistories()
     {
         return $this->hasMany(WatchHistory::class);

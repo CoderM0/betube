@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
         Gate::define("has-channel", function (User $user) {
+
             return $user->is_publisher;
         });
     }

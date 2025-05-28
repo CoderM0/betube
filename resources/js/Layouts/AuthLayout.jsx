@@ -1,8 +1,8 @@
 import ApplicationLogo from "@/Components/ApplicationLogo";
 import Dropdown from "@/Components/Dropdown";
+import SearchBar from "@/Components/SearchBar";
 import SideLink from "@/Components/SideLink";
-import { Link, router, usePage } from "@inertiajs/react";
-import { useState } from "react";
+import { Link, usePage } from "@inertiajs/react";
 import { CiCirclePlus } from "react-icons/ci";
 import { GrChannel, GrLike } from "react-icons/gr";
 import { IoMdHome } from "react-icons/io";
@@ -10,22 +10,6 @@ import { MdOutlineWatchLater, MdPlaylistPlay } from "react-icons/md";
 import { RiHistoryLine } from "react-icons/ri";
 
 export default function AuthLayout({ children, searchterm }) {
-    const [searchTerm, setSearchTerm] = useState(searchterm || "");
-
-    const handleInputChange = (event) => {
-        setSearchTerm(event.target.value);
-    };
-
-    const handleSearchClick = () => {
-        router.get(
-            route("user.search"),
-            { search: searchTerm },
-            {
-                preserveState: true,
-                replace: true,
-            }
-        );
-    };
     const user = usePage().props.auth.user;
     return (
         <div>
@@ -66,14 +50,15 @@ export default function AuthLayout({ children, searchterm }) {
                             </SideLink>
 
                             <SideLink
-                                href="#"
+                                href={route("user.saved_playlists")}
+                                active={route().current("user.saved_playlists")}
                                 className="flex items-center px-4 py-2 text-gray-100 hover:bg-gray-700 group"
                             >
                                 <MdPlaylistPlay
                                     className="mr-2"
                                     size={"1.5rem"}
                                 />
-                                playlist
+                                playlists
                             </SideLink>
 
                             {/* <!-- Favourites --> */}
@@ -132,35 +117,7 @@ export default function AuthLayout({ children, searchterm }) {
                 {/* <!-- Main content --> */}
                 <div className="flex flex-col flex-1  ">
                     <div className="flex items-center justify-between h-16 bg-white border-b border-gray-200">
-                        <div className=" px-4 w-[55%] ml-10">
-                            <div className="relative w-full">
-                                <input
-                                    className="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm focus:outline-none  focus:ring-blue-500 focus:border-blue-500"
-                                    type="search"
-                                    name="search"
-                                    value={searchTerm}
-                                    onChange={handleInputChange}
-                                    placeholder="Search"
-                                />
-                                <button
-                                    onClick={handleSearchClick}
-                                    className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-700 bg-gray-100 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                    <svg
-                                        className="h-5 w-5"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            fill-rule="evenodd"
-                                            clip-rule="evenodd"
-                                            d="M14.795 13.408l5.204 5.204a1 1 0 01-1.414 1.414l-5.204-5.204a7.5 7.5 0 111.414-1.414zM8.5 14A5.5 5.5 0 103 8.5 5.506 5.506 0 008.5 14z"
-                                        />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                        <SearchBar searchterm={searchterm} />
                         <div className="flex items-center justify-between pr-4">
                             {user.is_publisher ? (
                                 <p>view channel</p>

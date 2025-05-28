@@ -6,13 +6,16 @@ import AuthLayout from "@/Layouts/AuthLayout";
 import { useForm } from "@inertiajs/react";
 import { useEffect, useState } from "react";
 
-export default function CreatePlayList({ videos }) {
-    const { data, setData, post } = useForm({ videos: [] });
-    const [tmpvids, setTmpvids] = useState([]);
+export default function EditPlayList({ videos, playlist }) {
+    const { data, setData, put } = useForm({
+        videos: [],
+        name: playlist.name,
+    });
+    const [tmpvids, setTmpvids] = useState(playlist.videos.map((el) => el.id));
     const store_playlist = (e) => {
         e.preventDefault();
 
-        post(route("user.playlist.store"));
+        put(route("user.playlist.update", playlist.id));
     };
     let tmp = [];
     const managevids = (element) => {
@@ -32,6 +35,7 @@ export default function CreatePlayList({ videos }) {
                 <InputLabel className="my-3">PlayList Name</InputLabel>
                 <TextInput
                     type="text"
+                    value={data.name}
                     className="w-full my-2"
                     onChange={(e) => setData("name", e.target.value)}
                 />
@@ -39,11 +43,17 @@ export default function CreatePlayList({ videos }) {
                 <div className="my-3">
                     {videos.map((video) => {
                         return (
-                            <div key={video.id}>
+                            <div
+                                key={video.id}
+                                className="flex items-center gap-3"
+                            >
                                 <input
                                     type="checkbox"
                                     name="vid"
                                     id=""
+                                    defaultChecked={
+                                        video.play_list_id == playlist.id
+                                    }
                                     value={video.id}
                                     onChange={(e) => managevids(e.target)}
                                 />
@@ -57,7 +67,7 @@ export default function CreatePlayList({ videos }) {
                 </div>
                 <div className="flex justify-center">
                     <PrimaryButton className="w-1/2 my-4 block mx-auto justify-center">
-                        create
+                        Update
                     </PrimaryButton>
                 </div>
             </form>

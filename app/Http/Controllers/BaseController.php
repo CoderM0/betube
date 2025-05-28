@@ -25,6 +25,25 @@ class BaseController extends Controller
             })->get();
         return Inertia::render("SearchResult", ['videos' => $videos, 'serachterm' => $searchterm]);
     }
+    public function save_to_playlists(PlayList $playlist)
+    {
+        $user = User::find(Auth::id());
+        if ($user->userPlaylists->contains($playlist->id)) {
+            $user->userPlaylists()->detach($playlist->id);
+        } else {
+            $user->userPlaylists()->attach($playlist->id);
+        }
+
+        return redirect()->back();
+    }
+    public function saved_playlists()
+    {
+        $user = User::find(Auth::id());
+        $playlists =  $user->userPlaylists()->withPivot('created_at')->with(["videos", 'savedByUsers'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return Inertia::render("Lists/SavedPlaylists", ['playlists' => $playlists]);
+    }
     public function create_channel()
     {
         if (Auth::user()->is_publisher) {

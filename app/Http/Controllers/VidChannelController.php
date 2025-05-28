@@ -13,35 +13,7 @@ use Inertia\Inertia;
 
 class VidChannelController extends Controller
 {
-    // public function view_channel()
-    // {
-    //     $channel = VidChannel::with(['videos'])->where("user_id", Auth::id())->first();
 
-    //     return redirect()->route("user.channel.home", $channel->id);
-    // }
-    // public function indexforlater()
-    // {
-
-    //     $channel = VidChannel::with(['videos'])->where("user_id", Auth::id())->first();
-    //     $activeTab = request()->query('tab', 'home');
-    //     $data = [];
-
-    //     switch ($activeTab) {
-    //         case 'home':
-    //             $data['home'] = $this->fetchHomeData();
-    //             break;
-    //         case 'videos':
-    //             $data['vid'] = $this->fetchvideosData();
-    //             break;
-    //         case 'playlists':
-    //             $data['playlists'] = $this->fetchPlaylistsData();
-    //             break;
-    //         default:
-    //             $data['home'] = $this->fetchHomeData(); // Default case
-    //             break;
-    //     }
-    //     return Inertia::render("Channel/ViewChannel", ['channel' => $channel, 'data' => $data]);
-    // }
     public function channel_home($channel_id)
     {
         $channel = VidChannel::find($channel_id);
@@ -59,7 +31,7 @@ class VidChannelController extends Controller
 
     public   function channel_playlists($channel_id)
     {
-        $channel = VidChannel::with(['playlists', 'playlists.videos'])->find($channel_id);
+        $channel = VidChannel::with(['playlists', 'playlists.videos', 'playlists.savedByUsers'])->find($channel_id);
 
         return Inertia::render("Channel/ChannelPlayLists", ['playlists' => $channel->playlists, 'channel' => $channel]);
     }

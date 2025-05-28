@@ -14,7 +14,13 @@ export default function ManagePlayLists({ channel, playlists }) {
                     Add PlayList <CiSquarePlus size={"1.5rem"} />
                 </Link>
                 {playlists.map((playlist) => {
-                    return <PlayListCard playlist={playlist} />;
+                    return (
+                        <PlayListCard
+                            playlist={playlist}
+                            isOwner={true}
+                            key={playlist.id}
+                        />
+                    );
                 })}
             </div>
         </MyChannelView>

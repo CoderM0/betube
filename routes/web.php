@@ -31,6 +31,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/videos/liked', [BaseController::class, 'liked_videos'])->name("user.videos.liked");
     Route::get('/videos/watchedlater', [BaseController::class, 'watched_later_videos'])->name("user.videos.watched_later");
     // Route::get('/playlists/{play_list_id}', [BaseController::class, 'view_playlist'])->name("playlist.view");
+    Route::post('/user/playlist/{playlist}/save', [BaseController::class, 'save_to_playlists'])->name('user.save_to_playlists');
+    Route::get('/user/playlists/saved', [BaseController::class, 'saved_playlists'])->name('user.saved_playlists');
     Route::get('/play/playlist/{playlist}', [BaseController::class, 'playPlaylist'])->name('play.playlist');
     Route::get('/videos/hsitory/view', [BaseController::class, 'view_history'])->name("user.history.view");
     Route::post('/videos/{video}/watchlater', [BaseController::class, 'add_to_watch_later'])->name("user.video.watchlater");
@@ -41,10 +43,20 @@ Route::middleware(['auth', 'can:has-channel'])->controller(UserChannelController
     Route::get("/view",  'view_channel')->name("user.channel.view");
     Route::get("/videos",  'my_channel_videos')->name("user.channel.videos");
     Route::get("/playlists",  'my_channel_playlists')->name("user.channel.playlists");
-    Route::get("/upload",  'upload_video')->name("user.videos.upload");
+    Route::get("/edit",  'edit_channel')->name("user.channel.edit");
+    Route::get("/videos/upload",  'upload_video')->name("user.videos.upload");
+    Route::get("/videos/{video_id}/edit",  'edit_video')->name("user.videos.edit");
+    Route::post("/videos/{video_id}/update",  'update_video')->name("user.videos.update");
+    Route::post("/channel/update",  'update_channel')->name("user.channel.update");
+    Route::delete("/videos/{video}/delete",  'delete_video')->name("user.videos.delete");
     Route::get("/playlist/create",  'create_playlist')->name("user.playlists.create");
+    Route::get("/playlists/{playlist}/edit",  'edit_playlist')->name("user.playlist.edit");
+
+    Route::put("/playlists/{playlist}/update",  'update_playlist')->name("user.playlist.update");
+    Route::delete("/playlists/{playlist}/delete",  'delete_playlist')->name("user.playlist.delete");
     Route::post("/playlist/store",  'store_playlist')->name("user.playlist.store");
     Route::post("/upload/save",  'save_video')->name("user.videos.save");
+    Route::delete("/channel/delete", 'delete_channel')->name("channel.destroy");
 });
 
 //other channels

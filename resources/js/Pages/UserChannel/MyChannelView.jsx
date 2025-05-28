@@ -1,5 +1,7 @@
 import NavLink from "@/Components/NavLink";
 import AuthLayout from "@/Layouts/AuthLayout";
+import { Link } from "@inertiajs/react";
+import { MdEdit } from "react-icons/md";
 
 export default function MyChannelView({ channel, children }) {
     return (
@@ -26,6 +28,15 @@ export default function MyChannelView({ channel, children }) {
                                 className="object-cover rounded-full w-36 h-36 ring ring-indigo-500"
                             />
                         </div>
+                    </div>
+                    <div className="flex items-center  justify-end px-5">
+                        <Link
+                            href={route("user.channel.edit")}
+                            className="flex items-center gap-2 rounded-xl px-3 py-1 bg-yellow-800 text-white"
+                        >
+                            <MdEdit size={"1.5rem"} />
+                            <span>Edit </span>
+                        </Link>
                     </div>
                 </div>
 
