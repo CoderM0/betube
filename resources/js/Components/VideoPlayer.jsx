@@ -76,6 +76,11 @@ export default function VideoPlayer({ video, userLiked }) {
                         <span>{formatDistanceToNow(video.created_at)} ago</span>
                     </p>
                     <p className="italic">{video.description}</p>
+                    <p className="py-1 my-1 flex items-center gap-2">
+                        {video.tags.map((el) => (
+                            <p key={el}>#{el}</p>
+                        ))}
+                    </p>
                 </div>
                 <p className="my-5">{video.comments.length} Comments</p>
                 <CommentsSection comments={video.comments} vid_id={video.id} />

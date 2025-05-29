@@ -3,6 +3,7 @@
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MoviesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserChannelController;
 use App\Http\Controllers\VidChannelController;
@@ -36,6 +37,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/play/playlist/{playlist}', [BaseController::class, 'playPlaylist'])->name('play.playlist');
     Route::get('/videos/hsitory/view', [BaseController::class, 'view_history'])->name("user.history.view");
     Route::post('/videos/{video}/watchlater', [BaseController::class, 'add_to_watch_later'])->name("user.video.watchlater");
+    Route::controller(MoviesController::class)->prefix("movies")->group(function () {
+        Route::get("/home", 'movies_home')->name("movies.home");
+        Route::get("/{id}/view", 'view_details')->name("movie.view");
+    });
 });
 
 ///user channel

@@ -7,6 +7,7 @@ import { CiCirclePlus } from "react-icons/ci";
 import { GrChannel, GrLike } from "react-icons/gr";
 import { IoMdHome } from "react-icons/io";
 import { MdOutlineWatchLater, MdPlaylistPlay } from "react-icons/md";
+import { PiFilmSlate } from "react-icons/pi";
 import { RiHistoryLine } from "react-icons/ri";
 
 export default function AuthLayout({ children, searchterm }) {
@@ -82,6 +83,14 @@ export default function AuthLayout({ children, searchterm }) {
                             >
                                 <GrLike className="mr-2" size={"1.5rem"} />
                                 Liked Videos{" "}
+                            </SideLink>
+                            <SideLink
+                                href={route("movies.home")}
+                                active={route().current("movies.home")}
+                                className="flex items-center px-4 py-2 mt-2 text-gray-100 hover:bg-gray-700 group"
+                            >
+                                <PiFilmSlate className="mr-2" size={"1.5rem"} />
+                                Movies
                             </SideLink>
                             {user.is_publisher ? (
                                 <div className="mt-3 border-t">

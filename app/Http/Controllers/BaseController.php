@@ -160,7 +160,32 @@ class BaseController extends Controller
             $vid->view_count += 1;
             $vid->save();
         }
-        return Inertia::render("Player/PlayerHome", ['video' => $vid->loadCount('likedByUsers'), 'userLiked' => $userLiked]);
+
+        $searchtags = $vid->tags;
+        $vidsuugestion = Video::whereNot('id', $vid->id)->where(function ($query) use ($searchtags) {
+            foreach ($searchtags as $tag) {
+                $query->orWhereJsonContains('tags', $tag);
+            }
+        })
+            ->latest()
+            ->take(6)
+            ->get();
+
+        if ($vidsuugestion->count() < 6) {
+
+            $remainingNeeded = 6 - $vidsuugestion->count();
+
+
+            $channelVideos = Video::where('vid_channel_id', $vid->vid_channel_id)->whereNot("id", $vid->id)
+                ->whereNotIn('id', $vidsuugestion->pluck('id')->toArray())
+                ->latest()
+                ->take($remainingNeeded)
+                ->get();
+            $suggestions = $vidsuugestion->concat($channelVideos)->take(6);
+        }
+
+
+        return Inertia::render("Player/PlayerHome", ['video' => $vid->loadCount('likedByUsers'), 'userLiked' => $userLiked, 'suggestions' => $suggestions]);
     }
 
 
