@@ -11,6 +11,11 @@ class VidChannel extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function subscribers()
+    {
+        return $this->belongsToMany(User::class, 'vid_channel_user');
+    }
+
     public function videos()
     {
         return $this->hasMany(Video::class);

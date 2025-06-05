@@ -11,14 +11,25 @@ export default function SearchBar({ searchterm }) {
     const handleSearchClick = () => {
         if (searchTerm.length == 0) {
         } else {
-            router.get(
-                route("user.search"),
-                { search: searchTerm },
-                {
-                    preserveState: true,
-                    replace: true,
-                }
-            );
+            if (route().current("movies.home")) {
+                router.get(
+                    route("movies.home"),
+                    { search_film: searchTerm },
+                    {
+                        preserveState: true,
+                        replace: true,
+                    }
+                );
+            } else {
+                router.get(
+                    route("user.search"),
+                    { search: searchTerm },
+                    {
+                        preserveState: true,
+                        replace: true,
+                    }
+                );
+            }
         }
     };
     return (

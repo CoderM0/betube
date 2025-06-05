@@ -1,14 +1,13 @@
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { formatDistanceToNow } from "date-fns";
 import { useEffect, useRef } from "react";
-import { BiDislike } from "react-icons/bi";
-import { MdOutlineDataSaverOn } from "react-icons/md";
 import CommentsSection from "./CommentsSection";
+import DisLikeButton from "./DisLikeButton";
 import LikeButton from "./LikeButton";
 
-export default function VideoPlayer({ video, userLiked }) {
+export default function VideoPlayer({ video, userLiked, userDisLiked }) {
     const videoRef = useRef(null);
-
+    const { user } = usePage().props.auth;
     useEffect(() => {
         if (videoRef.current) {
             videoRef.current.load(); // Important: Reload the video element
@@ -18,7 +17,7 @@ export default function VideoPlayer({ video, userLiked }) {
         <div className="w-2/3">
             <video
                 ref={videoRef}
-                className=" h-96 mx-auto rounded-lg object-cover"
+                className=" h-96 mx-auto rounded-lg object-cover accent-blue-500"
                 controlsList="foobar"
                 controls
                 autoPlay
@@ -47,25 +46,54 @@ export default function VideoPlayer({ video, userLiked }) {
                         />
                         <p className="text-black italic font-bold ">
                             {video.vid_channel?.channel_name}{" "}
+                            <p className="text-sm text-gray-400">
+                                {video.vid_channel.subscribers.length}{" "}
+                                subscribers
+                            </p>
                         </p>
                     </Link>
 
                     <div className="flex w-1/2 justify-between">
-                        {/* <button className="flex items-center gap-2 px-3 text-gray-800 hover:text-black rounded-2xl bg-gray-200 hover:bg-gray-300">
-                                    Like <BiLike size={"1.2rem"} />
-                                </button> */}
-                        <LikeButton
-                            videoId={video.id}
-                            initialLiked={userLiked}
-                            initialLikesCount={video.liked_by_users_count}
-                        />
-                        <button className="flex items-center gap-2 px-3 text-gray-800 hover:text-black rounded-2xl bg-gray-200 hover:bg-gray-300">
-                            {" "}
-                            DisLike <BiDislike size={"1.2rem"} />
-                        </button>
-                        <button className="flex items-center gap-2 px-3 text-gray-800 hover:text-black rounded-2xl bg-gray-200 hover:bg-gray-300">
-                            Save <MdOutlineDataSaverOn size={"1.2rem"} />
-                        </button>
+                        <div className="flex gap-10">
+                            <LikeButton
+                                videoId={video.id}
+                                initialLiked={userLiked}
+                                initialLikesCount={video.liked_by_users_count}
+                            />
+                            <DisLikeButton
+                                videoId={video.id}
+                                initialDisLiked={userDisLiked}
+                                initialDisLikesCount={
+                                    video.disliked_by_users_count
+                                }
+                            />
+                        </div>
+
+                        {video.vid_channel.user_id != user.id && (
+                            <div className="flex items-center gap-2">
+                                <Link
+                                    preserveScroll
+                                    method="POST"
+                                    className=""
+                                    href={route(
+                                        "user.subscribe",
+                                        video.vid_channel.id
+                                    )}
+                                >
+                                    {video.vid_channel.subscribers.find(
+                                        (susbs) => susbs.id == user.id
+                                    ) ? (
+                                        <p className="py-1 px-3 rounded-3xl bg-gray-400 text-white">
+                                            UnSubscribe{" "}
+                                        </p>
+                                    ) : (
+                                        <p className="py-1 px-3 rounded-3xl bg-black text-white">
+                                            Subscribe{" "}
+                                        </p>
+                                    )}
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
                 {/* desc */}

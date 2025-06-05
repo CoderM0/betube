@@ -92,32 +92,31 @@ export default function AuthLayout({ children, searchterm }) {
                                 <PiFilmSlate className="mr-2" size={"1.5rem"} />
                                 Movies
                             </SideLink>
-                            {user.is_publisher ? (
+                            {user.subscribtions.length > 0 && (
                                 <div className="mt-3 border-t">
-                                    <SideLink
-                                        href={route("user.channel.view")}
-                                        active={route().current(
-                                            "user.channel.view"
-                                        )}
-                                        className="flex items-center px-4 py-2 mt-2 text-gray-100 hover:bg-gray-700 group"
-                                    >
-                                        <GrChannel
-                                            className="mr-2"
-                                            size={"1.5rem"}
-                                        />
-                                        My channel
-                                    </SideLink>
+                                    <h1 className="my-2">Subscribtions</h1>
+                                    {user.subscribtions.map((subcahn) => {
+                                        return (
+                                            <SideLink
+                                                href={route(
+                                                    "channels.channel.home",
+                                                    subcahn.id
+                                                )}
+                                                active={route().current(
+                                                    "channels.channel.home"
+                                                )}
+                                                className="flex w-full  items-center px-2 py-2 mt-2 text-gray-100 hover:bg-gray-700 group"
+                                            >
+                                                <img
+                                                    src={`/storage/${subcahn.logo}`}
+                                                    alt=""
+                                                    className="w-[2.5rem] h-[2.5rem] rounded-full object-cover mr-3"
+                                                />
+                                                {subcahn.channel_name}
+                                            </SideLink>
+                                        );
+                                    })}
                                 </div>
-                            ) : (
-                                <SideLink
-                                    href={route("user.channel.create")}
-                                    active={route().current(
-                                        "user.channel.create"
-                                    )}
-                                    className="flex border-t text-center items-center gap-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700"
-                                >
-                                    create channel <CiCirclePlus />
-                                </SideLink>
                             )}
                         </nav>
                     </div>
@@ -129,7 +128,19 @@ export default function AuthLayout({ children, searchterm }) {
                         <SearchBar searchterm={searchterm} />
                         <div className="flex items-center justify-between pr-4">
                             {user.is_publisher ? (
-                                <p>view channel</p>
+                                <Link
+                                    href={route("user.channel.view")}
+                                    active={route().current(
+                                        "user.channel.view"
+                                    )}
+                                    className="flex items-center px-4 py-2  gap-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700"
+                                >
+                                    <GrChannel
+                                        className="mr-2"
+                                        size={"1.5rem"}
+                                    />
+                                    My channel
+                                </Link>
                             ) : (
                                 <Link
                                     href={route("user.channel.create")}

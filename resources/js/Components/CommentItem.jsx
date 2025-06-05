@@ -39,11 +39,15 @@ export default function CommentItem({ comment }) {
                 <p className="px-10 italic">{comment.comment_text}</p>
                 {comment.parent_comment_id == null && (
                     <div className="ml-10 flex justify-center gap-5 w-1/2">
-                        <button onClick={() => setAddReplies(!addReplies)}>
+                        <button
+                            className="my-1"
+                            onClick={() => setAddReplies(!addReplies)}
+                        >
                             {addReplies ? "Cancel" : "Reply"}
                         </button>
                         {comment.replies.length > 0 && (
                             <button
+                                className="my-1"
                                 onClick={() => setOpenReplies(!openReplies)}
                             >
                                 {openReplies ? "Hide Replies" : "View Replies"}
@@ -74,7 +78,7 @@ export default function CommentItem({ comment }) {
                     </p>
                 ) : (
                     <form className="my-2 ml-10" onSubmit={add_reply}>
-                        <div className="flex items-center relative">
+                        <div className="flex gap-2 items-center relative mt-2">
                             <img
                                 src={`/storage/${user.avatar}`}
                                 alt=""
@@ -87,15 +91,15 @@ export default function CommentItem({ comment }) {
                                     setData("comment_text", e.target.value)
                                 }
                                 required
-                                placeholder="add a reply.."
-                                className="w-11/12 border  rounded-2xl bg-gray-200"
+                                placeholder={"reply to " + comment.user.name}
+                                className="w-11/12 border  rounded-2xl bg-gray-100"
                             />
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="absolute right-10 top-1/2 -translate-y-1/2 p-1 rounded-xl bg-gray-400 flex justify-center items-center w-10  text-white disabled:bg-green-100"
+                                className="absolute right-5 top-1/2 -translate-y-1/2 p-1  flex justify-center items-center w-10  text-white disabled:bg-green-100"
                             >
-                                <MdSend size={"1.5rem"} />
+                                <MdSend size={"1.5rem"} color="green" />
                             </button>
                         </div>
                     </form>

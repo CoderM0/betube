@@ -2,13 +2,18 @@
 
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\CommentController;
-use App\Http\Controllers\Controller;
+
 use App\Http\Controllers\MoviesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserChannelController;
 use App\Http\Controllers\VidChannelController;
+
 use App\Models\Video;
+use App\Models\VideoRating;
+use App\OutServices\Recommenation;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -22,6 +27,7 @@ Route::get('/', function () {
 });
 Route::middleware(['auth'])->group(function () {
     Route::get("/search", [BaseController::class, 'search'])->name("user.search");
+    Route::post("/channels/{channel}/subscribe", [VidChannelController::class, 'subscribe'])->name("user.subscribe");
     Route::get("/channels/create", [BaseController::class, 'create_channel'])->name("user.channel.create");
     Route::post("/channels/store", [BaseController::class, 'store_channel'])->name("user.channel.store");
     Route::get("/videos/{vid}/watch", [BaseController::class, 'watch_video'])->name("user.video.view");
@@ -29,6 +35,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post("videos/{video_id}/comments/{comment_id}/reply/add", [CommentController::class, 'add_reply'])->name("user.reply.add");
     Route::post('/videos/{video}/like', [BaseController::class, 'like'])->name("user.video.like");
     Route::delete('/videos/{video}/unlike', [BaseController::class, 'unlike'])->name("user.video.unlike");
+    //
+    Route::post('/videos/{video}/dislike', [BaseController::class, 'dislike'])->name("user.video.dislike");
+    Route::delete('/videos/{video}/undislike', [BaseController::class, 'undislike'])->name("user.video.undislike");
+
+    //
     Route::get('/videos/liked', [BaseController::class, 'liked_videos'])->name("user.videos.liked");
     Route::get('/videos/watchedlater', [BaseController::class, 'watched_later_videos'])->name("user.videos.watched_later");
     // Route::get('/playlists/{play_list_id}', [BaseController::class, 'view_playlist'])->name("playlist.view");
@@ -71,9 +82,30 @@ Route::middleware(['auth'])->controller(VidChannelController::class)->prefix("ch
     Route::get("/{channel_id}/playlists", 'channel_playlists')->name("channels.channel.playlists"); //was user.channel.playlists
 });
 Route::get('/home', function () {
+    $lastVideoRating = VideoRating::where("user_id", Auth::id())
+        ->latest('updated_at')
+        ->first();
 
-    $videos = Video::with(["vid_channel", "watchLaterByUsers"])->get();
-    return Inertia::render('Dashboard', ['videos' => $videos]);
+
+    $recommendedVideoIds = [];
+    if ($lastVideoRating) {
+
+        $recommendedVideoIds = Recommenation::get_videos_recommendations(
+            $lastVideoRating->video_id,
+            $lastVideoRating->rating
+        );
+    }
+
+    $allVideos = Video::with(["vid_channel", "watchLaterByUsers"])->get();
+
+
+    $orderedVideos = $allVideos->sortBy(function ($video) use ($recommendedVideoIds) {
+
+        $index = array_search($video->id, $recommendedVideoIds);
+        return $index === false ? PHP_INT_MAX : $index;
+    });
+
+    return Inertia::render('Dashboard', ['videos' => $orderedVideos->values()->toArray()]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

@@ -1,28 +1,23 @@
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import InputError from "@/Components/InputError";
+import { Head, Link, useForm } from "@inertiajs/react";
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
-        password: '',
+        email: "",
+        password: "",
         remember: false,
     });
 
     const submit = (e) => {
         e.preventDefault();
 
-        post(route('login'), {
-            onFinish: () => reset('password'),
+        post(route("login"), {
+            onFinish: () => reset("password"),
         });
     };
 
     return (
-        <GuestLayout>
+        <div>
             <Head title="Log in" />
 
             {status && (
@@ -30,8 +25,87 @@ export default function Login({ status, canResetPassword }) {
                     {status}
                 </div>
             )}
+            <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
+                <form
+                    className="w-screen m-0  bg-white shadow sm:rounded-lg flex justify-center "
+                    onSubmit={submit}
+                >
+                    <div className=" p-3 flex-1">
+                        <div className="mt-5 flex flex-col items-center">
+                            <h1 className="text-2xl xl:text-3xl font-extrabold">
+                                Login
+                            </h1>
+                            <div className="w-full flex-1 mt-8">
+                                <div className="mx-auto max-w-md">
+                                    <input
+                                        className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
+                                        type="email"
+                                        placeholder="Email"
+                                        value={data.email}
+                                        autoComplete="username"
+                                        onChange={(e) =>
+                                            setData("email", e.target.value)
+                                        }
+                                        required
+                                    />
+                                    <InputError
+                                        message={errors.email}
+                                        className="mt-2"
+                                    />
+                                    <input
+                                        className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
+                                        type="password"
+                                        placeholder="Password"
+                                        value={data.password}
+                                        autoComplete="new-password"
+                                        onChange={(e) =>
+                                            setData("password", e.target.value)
+                                        }
+                                        required
+                                    />
+                                    <InputError
+                                        message={errors.password}
+                                        className="mt-2"
+                                    />
 
-            <form onSubmit={submit}>
+                                    <Link
+                                        href={route("register")}
+                                        className="rounded-md block text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 my-3"
+                                    >
+                                        No Account ?
+                                    </Link>
+                                    <button
+                                        disabled={processing}
+                                        className="mt-5 disabled:bg-indigo-300 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
+                                    >
+                                        <svg
+                                            className="w-6 h-6 -ml-2"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        >
+                                            <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                                            <circle cx="8.5" cy="7" r="4" />
+                                            <path d="M20 8v6M23 11h-6" />
+                                        </svg>
+                                        <span className="ml-3">Login</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
+                        <img src="/images/loginimg.png" alt="" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+{
+    /* <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="email" value="Email" />
 
@@ -94,7 +168,5 @@ export default function Login({ status, canResetPassword }) {
                         Log in
                     </PrimaryButton>
                 </div>
-            </form>
-        </GuestLayout>
-    );
+            </form>    */
 }

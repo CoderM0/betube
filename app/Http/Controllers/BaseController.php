@@ -6,7 +6,9 @@ use App\Models\PlayList;
 use App\Models\User;
 use App\Models\VidChannel;
 use App\Models\Video;
+use App\Models\VideoRating;
 use App\Models\WatchHistory;
+use App\OutServices\Recommenation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -91,18 +93,17 @@ class BaseController extends Controller
     {
         if (request()->type == "playlist") {
             $playlist = PlayList::find($playlist);
-            $videos = $playlist->videos()->with(["vid_channel", "comments", "comments.user", "comments.parent_comment"])->get(); // Or paginate, etc.
-
+            $videos = $playlist->videos()->with(["vid_channel", "vid_channel.subscribers", "comments", "comments.user", "comments.parent_comment"])->get();
         } else if (request()->type == "likedvideos") {
             $user = User::find(Auth::id());
 
             $playlist = ["id" => 1, "name" => "liked videos", "videos" => $user->likedVideos];
-            $videos = $user->likedVideos()->with(["vid_channel", "comments", "comments.user", "comments.parent_comment"])->get();
+            $videos = $user->likedVideos()->with(["vid_channel", "vid_channel.subscribers", "comments", "comments.user", "comments.parent_comment"])->get();
         } else if (request()->type == "watchlater") {
             $user = User::find(Auth::id());
 
             $playlist = ["id" => 1, "name" => "watch later videos", "videos" => $user->laterVideos];
-            $videos = $user->laterVideos()->with(["vid_channel", "comments", "comments.user", "comments.parent_comment"])->get();
+            $videos = $user->laterVideos()->with(["vid_channel", "vid_channel.subscribers", "comments", "comments.user", "comments.parent_comment"])->get();
         }
         $currentVideoId = $request->input('video');
         $currentVideoIndex = 0;
@@ -117,9 +118,10 @@ class BaseController extends Controller
             }
         }
         $userLiked = false;
-
+        $userDisLiked = false;
         if (Auth::check()) {
             $userLiked =  $videos->get($currentVideoIndex)->likedByUsers()->where('user_id', Auth::id())->exists();
+            $userDisLiked = $videos->get($currentVideoIndex)->dislikedByUsers()->where('user_id', Auth::id())->exists();
         }
         $currentUrl = request()->fullUrl();
         $previousUrl = request()->header('Referer');
@@ -135,8 +137,9 @@ class BaseController extends Controller
             'videos' => $videos,
             "list_type" => request()->type,
             'userLiked' => $userLiked,
+            'userDisLiked' => $userDisLiked,
             'currentVideoIndex' => $currentVideoIndex,
-            'currentVideo' => $videos->get($currentVideoIndex)->loadCount('likedByUsers'),
+            'currentVideo' => $videos->get($currentVideoIndex)->loadCount(['likedByUsers', 'dislikedByUsers']),
         ]);
     }
     public function watch_video($vid)
@@ -146,14 +149,16 @@ class BaseController extends Controller
         $previousUrl = request()->header('Referer');
 
 
-        $vid = Video::with(["vid_channel", "comments", "comments.user", "comments.parent_comment"])->find($vid);
+        $vid = Video::with(["vid_channel", "vid_channel.subscribers", "comments", "comments.user", "comments.parent_comment"])->find($vid);
         WatchHistory::updateOrCreate(['user_id' => Auth::id(), 'video_id' => $vid->id], ['watched_at' => now()->format('Y-m-d H:i')]);
 
 
         $userLiked = false;
+        $userDisLiked = false;
 
         if (Auth::check()) {
             $userLiked = $vid->likedByUsers()->where('user_id', Auth::id())->exists();
+            $userDisLiked = $vid->dislikedByUsers()->where('user_id', Auth::id())->exists();
         }
         if ($previousUrl != $currentUrl) {
 
@@ -161,39 +166,63 @@ class BaseController extends Controller
             $vid->save();
         }
 
-        $searchtags = $vid->tags;
-        $vidsuugestion = Video::whereNot('id', $vid->id)->where(function ($query) use ($searchtags) {
-            foreach ($searchtags as $tag) {
-                $query->orWhereJsonContains('tags', $tag);
-            }
-        })
-            ->latest()
-            ->take(6)
-            ->get();
 
-        if ($vidsuugestion->count() < 6) {
+        $recommendedVideoIds = Recommenation::get_videos_recommendations(
+            $vid->id,
+            5
+        );
 
-            $remainingNeeded = 6 - $vidsuugestion->count();
 
+        if ($recommendedVideoIds == null) {
 
             $channelVideos = Video::where('vid_channel_id', $vid->vid_channel_id)->whereNot("id", $vid->id)
-                ->whereNotIn('id', $vidsuugestion->pluck('id')->toArray())
+
                 ->latest()
-                ->take($remainingNeeded)
+                ->take(6)
                 ->get();
-            $suggestions = $vidsuugestion->concat($channelVideos)->take(6);
+            if ($channelVideos->count() < 3) {
+                $channelVideos =  Video::whereNot('id', $vid->id)->latest()->take(5)->get();
+            }
+            return Inertia::render("Player/PlayerHome", ['video' => $vid->loadCount(['likedByUsers', 'dislikedByUsers']), 'userLiked' => $userLiked, 'userDisLiked' => $userDisLiked, 'suggestions' => $channelVideos]);
         }
+        $allVideos = Video::whereNot('id', $vid->id)->get();
+        $orderedVideos = $allVideos->sortBy(function ($video) use ($recommendedVideoIds) {
+
+            $index = array_search($video->id, $recommendedVideoIds);
+            return $index === false ? PHP_INT_MAX : $index;
+        });
+
+        $vidsuugestion = $orderedVideos->values()->toArray();
+        //
+        // if ($vidsuugestion->count() < 7) {
+
+        //     $remainingNeeded = 6 - $vidsuugestion->count();
 
 
-        return Inertia::render("Player/PlayerHome", ['video' => $vid->loadCount('likedByUsers'), 'userLiked' => $userLiked, 'suggestions' => $suggestions]);
+        //     $channelVideos = Video::where('vid_channel_id', $vid->vid_channel_id)->whereNot("id", $vid->id)
+        //         ->whereNotIn('id', $vidsuugestion->pluck('id')->toArray())
+        //         ->latest()
+        //         ->take($remainingNeeded)
+        //         ->get();
+        //     $suggestions = $vidsuugestion->concat($channelVideos)->take(6);
+        // }
+
+
+        return Inertia::render("Player/PlayerHome", ['video' => $vid->loadCount(['likedByUsers', 'dislikedByUsers']), 'userLiked' => $userLiked, 'userDisLiked' => $userDisLiked, 'suggestions' => $vidsuugestion]);
     }
 
 
     public function like(Video $video)
     {
         $user = User::find(Auth::id());
+        if ($user->dislikedVideos->contains($video->id)) {
+            $user->dislikedVideos()->detach($video->id);
+        }
         $user->likedVideos()->attach($video->id);
 
+
+
+        VideoRating::upsert(['user_id' => Auth::id(), 'video_id' => $video->id, 'rate' => 5], ['user_id', 'video_id']);
 
         return redirect()->back();
     }
@@ -206,9 +235,35 @@ class BaseController extends Controller
         $user = User::find(Auth::id());
 
         $user->likedVideos()->detach($video->id);
+        VideoRating::upsert(['user_id' => Auth::id(), 'video_id' => $video->id, 'rate' => 2.5], ['user_id', 'video_id']);
 
         return redirect()->back();
     }
+    //dislike
+    public function dislike(Video $video)
+    {
+        $user = User::find(Auth::id());
+        if ($user->likedVideos->contains($video->id)) {
+            $user->likedVideos()->detach($video->id);
+        }
+
+        $user->dislikedVideos()->attach($video->id);
+
+
+        VideoRating::upsert(['user_id' => Auth::id(), 'video_id' => $video->id, 'rate' => 1], ['user_id', 'video_id']);
+
+        return redirect()->back();
+    }
+    public function undislike(Video $video)
+    {
+        $user = User::find(Auth::id());
+
+        $user->dislikedVideos()->detach($video->id);
+        VideoRating::upsert(['user_id' => Auth::id(), 'video_id' => $video->id, 'rate' => 3], ['user_id', 'video_id']);
+
+        return redirect()->back();
+    }
+    //end dislike
     public function liked_videos()
     {
         $user = User::find(Auth::id());

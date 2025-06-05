@@ -10,6 +10,7 @@ export default function PlayListPlayer({
     playlist,
     videos,
     userLiked,
+    userDisLiked,
     list_type,
     currentVideoIndex,
     currentVideo,
@@ -64,9 +65,11 @@ export default function PlayListPlayer({
     return (
         <PlayerLayout>
             <div className="flex mt-3">
-                {/* <h1>{currentVideoState?.title}</h1> */}
-                {/* Video player component using currentVideoState.url */}
-                <VideoPlayer video={currentVideo} userLiked={userLiked} />
+                <VideoPlayer
+                    video={currentVideo}
+                    userLiked={userLiked}
+                    userDisLiked={userDisLiked}
+                />
                 {playlist && videos && videos.length > 0 && (
                     <div className=" w-1/3 border rounded-xl">
                         <h1 className="text-center font-bold">

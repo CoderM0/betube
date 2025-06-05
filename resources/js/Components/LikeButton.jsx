@@ -1,5 +1,5 @@
 import { useForm, usePage } from "@inertiajs/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BiLike } from "react-icons/bi";
 
 export default function LikeButton({
@@ -40,6 +40,13 @@ export default function LikeButton({
             );
         }
     };
+    useEffect(() => {
+        setLiked(initialLiked);
+    }, [initialLiked]); // Re-run effect when initialLiked prop changes
+
+    useEffect(() => {
+        setLikesCount(initialLikesCount);
+    }, [initialLikesCount]);
     return (
         <button
             onClick={handleLike}

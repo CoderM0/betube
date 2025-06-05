@@ -50,10 +50,20 @@ class User extends Authenticatable
     {
         return $this->hasOne(VidChannel::class);
     }
+    public function subscribtions()
+    {
+        return $this->belongsToMany(VidChannel::class, 'vid_channel_user');
+    }
     public function likedVideos()
     {
 
         return $this->belongsToMany(Video::class, 'user_video')
+            ->withTimestamps();
+    }
+    public function dislikedVideos()
+    {
+
+        return $this->belongsToMany(Video::class, 'dislikes')
             ->withTimestamps();
     }
     public function laterVideos()
@@ -62,6 +72,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Video::class, 'watch_later')
             ->withTimestamps();
     }
+
     public function userPlaylists()
     {
 

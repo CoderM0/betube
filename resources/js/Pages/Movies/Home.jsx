@@ -3,7 +3,6 @@ import Paginator from "@/Components/Paginator";
 import AuthLayout from "@/Layouts/AuthLayout";
 
 export default function Home({ movies }) {
-    console.log(movies);
     return (
         <AuthLayout>
             {movies.links && <Paginator links={movies.links} />}

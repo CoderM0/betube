@@ -1,7 +1,10 @@
 import NavLink from "@/Components/NavLink";
 import AuthLayout from "@/Layouts/AuthLayout";
+import { Link, usePage } from "@inertiajs/react";
 
 export default function ViewChannel({ channel, children }) {
+    const { user } = usePage().props.auth;
+    console.log("channel", channel);
     return (
         <AuthLayout>
             <div className="border rounded-xl px-2">
@@ -13,9 +16,45 @@ export default function ViewChannel({ channel, children }) {
                                 alt=""
                                 className="w-full object-cover h-40"
                             />
-                            <p className="font-bold absolute bottom-0 left-44 text-xl">
-                                {channel.channel_name}
-                            </p>
+                            <div
+                                className={` absolute ${
+                                    channel.user_id == user.id
+                                        ? " -bottom-5 "
+                                        : " -bottom-16"
+                                }   left-44 `}
+                            >
+                                <p className="font-bold text-xl">
+                                    {channel.channel_name}{" "}
+                                </p>
+                                <p className="text-gray-400 text-sm">
+                                    {channel.subscribers.length} Subscribers
+                                </p>
+                                {channel.user_id != user.id && (
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <Link
+                                            preserveScroll
+                                            method="POST"
+                                            className=""
+                                            href={route(
+                                                "user.subscribe",
+                                                channel.id
+                                            )}
+                                        >
+                                            {channel.subscribers.find(
+                                                (susbs) => susbs.id == user.id
+                                            ) ? (
+                                                <p className="py-1 px-3 rounded-3xl bg-gray-400 text-white">
+                                                    UnSubscribe{" "}
+                                                </p>
+                                            ) : (
+                                                <p className="py-1 px-3 rounded-3xl bg-black text-white">
+                                                    Subscribe{" "}
+                                                </p>
+                                            )}
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <div className="absolute -bottom-8 left-3   w-36 h-36">
@@ -29,7 +68,8 @@ export default function ViewChannel({ channel, children }) {
                     </div>
                 </div>
 
-                <p className=" text-indigo-600 mt-10 rounded-xl p-2 w-11/12">
+                <p className="  text-indigo-600 mt-10 rounded-xl p-2 w-11/12">
+                    {" "}
                     {channel.description}
                 </p>
                 <div className="flex justify-between w-1/2">

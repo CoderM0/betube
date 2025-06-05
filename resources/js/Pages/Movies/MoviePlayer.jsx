@@ -23,7 +23,7 @@ export default function MoviePlayer({ movie, recommendations }) {
                             Previous Episode
                         </button>
                         <span id="episode-info" class="text-green-400">
-                            Episode 1 - {movie.title}
+                            Movie - {movie.title}
                         </span>
                         <button
                             id="next-ep"
@@ -31,22 +31,6 @@ export default function MoviePlayer({ movie, recommendations }) {
                         >
                             Next Episode
                         </button>
-                    </div>
-
-                    <p class="text-gray-300 leading-relaxed">
-                        Eren lives in a world where enormous walls protect
-                        humanity from man-eating giants known as Titans. But
-                        when a colossal Titan breaks the wall, everything
-                        changes.
-                    </p>
-
-                    <div class="overflow-x-auto scrollbar-thin">
-                        <ul
-                            id="episode-list"
-                            class="flex space-x-4 py-2 text-sm text-gray-400"
-                        >
-                            {/* <!-- Episodes inserted by JS --> */}
-                        </ul>
                     </div>
                 </section>
 

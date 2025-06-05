@@ -3,6 +3,7 @@ import AuthLayout from "@/Layouts/AuthLayout";
 import { Head } from "@inertiajs/react";
 
 export default function Dashboard({ videos }) {
+    console.log(videos);
     return (
         <AuthLayout
             header={

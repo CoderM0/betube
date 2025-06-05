@@ -21,6 +21,11 @@ class Video extends Model
         return $this->belongsToMany(User::class, 'user_video')
             ->withTimestamps();
     }
+    public function dislikedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'dislikes')
+            ->withTimestamps();
+    }
     public function watchLaterByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'watch_later')
