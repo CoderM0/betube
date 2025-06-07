@@ -32,6 +32,11 @@ class UserChannelController extends Controller
         $channel = VidChannel::with(['playlists', 'playlists.videos'])->where("user_id", Auth::id())->first();
         return Inertia::render("UserChannel/ManagePlayLists", ['playlists' => $channel->playlists, 'channel' => $channel]);
     }
+    public function my_channel_statistics()
+    {
+        $channel = VidChannel::with('subscribers')->where("user_id", Auth::id())->first();
+        return Inertia::render("UserChannel/ChannelStatistics", ['channel' => $channel]);
+    }
     public function edit_channel()
     {
         $channel = VidChannel::where("user_id", Auth::id())->first();

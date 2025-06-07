@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\CommentController;
 
@@ -25,6 +26,14 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
+
+Route::middleware(['auth', 'rolemanager:admin'])->controller(AdminController::class)->prefix("admin")->group(function () {
+    Route::get("/dashboard", 'index')->name("admin.dashboard");
+    Route::get("/channels/{channel_id}/view", 'view_channel')->name("admin.view_channel");
+    Route::delete("/videos/{video}/delete", 'delete_video')->name("admin.video.delete");
+    Route::delete("/channels/{channel}/delete", 'delete_channel')->name("admin.channel.delete");
+});
+
 Route::middleware(['auth'])->group(function () {
     Route::get("/search", [BaseController::class, 'search'])->name("user.search");
     Route::post("/channels/{channel}/subscribe", [VidChannelController::class, 'subscribe'])->name("user.subscribe");
@@ -59,6 +68,7 @@ Route::middleware(['auth', 'can:has-channel'])->controller(UserChannelController
     Route::get("/view",  'view_channel')->name("user.channel.view");
     Route::get("/videos",  'my_channel_videos')->name("user.channel.videos");
     Route::get("/playlists",  'my_channel_playlists')->name("user.channel.playlists");
+    Route::get("/statiscis",  'my_channel_statistics')->name("user.channel.stat");
     Route::get("/edit",  'edit_channel')->name("user.channel.edit");
     Route::get("/videos/upload",  'upload_video')->name("user.videos.upload");
     Route::get("/videos/{video_id}/edit",  'edit_video')->name("user.videos.edit");

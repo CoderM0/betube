@@ -17,26 +17,28 @@ export default function VideoListItem({ video, isHistory, imgwidth }) {
     return (
         <Link
             href={route("user.video.view", video.id)}
-            class={`rounded-xl overflow-hidden flex shadow hover:shadow-md w-full my-2 mb-4 border bg-white cursor-pointer h-36 ${
+            className={`rounded-xl overflow-hidden flex shadow hover:shadow-md w-full my-2 mb-4 border bg-white cursor-pointer h-36 ${
                 route().current("user.video.view", video.id)
                     ? "border-blue-500"
                     : ""
             }`}
         >
             <div
-                class={`lg:flex flex ${imgwidth ? "w-1/3" : " w-3/12"}   p-2  `}
+                className={`lg:flex flex ${
+                    imgwidth ? "w-1/3" : " w-3/12"
+                }   p-2  `}
             >
                 <img
                     src={`/storage/${video.thumbnail_path}`}
-                    class="rounded-xl object-cover w-full h-full"
+                    className="rounded-xl object-cover w-full h-full"
                 />
             </div>
 
-            <div class="w-7/12 pl-3 p-3 text-text1 flex flex-col justify-center">
-                <p class="text-base mb-2 font-bold ">{video.title}</p>
-                <div class="text-xs text-primary mb-2">
-                    <a class="flex items-center">
-                        <span class="font-bold tracking-wide text-sm text-pink-400">
+            <div className="w-7/12 pl-3 p-3 text-text1 flex flex-col justify-center">
+                <p className="text-base mb-2 font-bold ">{video.title}</p>
+                <div className="text-xs text-primary mb-2">
+                    <a className="flex items-center">
+                        <span className="font-bold tracking-wide text-sm text-pink-400">
                             {video.view_count} views
                         </span>
                     </a>
@@ -47,7 +49,7 @@ export default function VideoListItem({ video, isHistory, imgwidth }) {
                         </p>
                     )}
                 </div>
-                <div class="text-sm text-text2 tracking-wider">
+                <div className="text-sm text-text2 tracking-wider">
                     {formatDistanceToNow(video.created_at)} ago|{" "}
                     {formatSecondsToHMS(video.duration)}
                 </div>

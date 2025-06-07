@@ -1,4 +1,5 @@
 import InputError from "@/Components/InputError";
+import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 
 export default function Login({ status, canResetPassword }) {
@@ -17,7 +18,7 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <div>
+        <GuestLayout>
             <Head title="Log in" />
 
             {status && (
@@ -101,7 +102,7 @@ export default function Login({ status, canResetPassword }) {
                     </div>
                 </form>
             </div>
-        </div>
+        </GuestLayout>
     );
 }
 {

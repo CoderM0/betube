@@ -62,6 +62,12 @@ export default function MyChannelView({ channel, children }) {
                     >
                         PlayLists
                     </NavLink>
+                    <NavLink
+                        href={route("user.channel.stat")}
+                        active={route().current("user.channel.stat")}
+                    >
+                        Statistics
+                    </NavLink>
                 </div>
                 <div className="mt-10">{children}</div>
             </div>

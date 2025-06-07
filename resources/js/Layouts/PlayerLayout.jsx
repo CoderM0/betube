@@ -3,6 +3,7 @@ import Dropdown from "@/Components/Dropdown";
 import SearchBar from "@/Components/SearchBar";
 import { Link, usePage } from "@inertiajs/react";
 import { CiCirclePlus } from "react-icons/ci";
+import { GrChannel } from "react-icons/gr";
 
 export default function PlayerLayout({ children, searchterm }) {
     const user = usePage().props.auth.user;
@@ -27,13 +28,26 @@ export default function PlayerLayout({ children, searchterm }) {
 
                         <div class="flex items-center justify-between pr-4">
                             {user.is_publisher ? (
-                                <p>view channel</p>
+                                <Link
+                                    href={route("user.channel.view")}
+                                    active={route().current(
+                                        "user.channel.view"
+                                    )}
+                                    className="flex items-center px-4 py-2  gap-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700"
+                                >
+                                    <GrChannel
+                                        className="mr-2"
+                                        size={"1.5rem"}
+                                    />
+                                    My channel
+                                </Link>
                             ) : (
                                 <Link
                                     href={route("user.channel.create")}
                                     class="flex items-center gap-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700"
                                 >
-                                    create channel <CiCirclePlus />
+                                    create channel{" "}
+                                    <CiCirclePlus size={"1.5rem"} />
                                 </Link>
                             )}
                             <div className="relative ms-3">

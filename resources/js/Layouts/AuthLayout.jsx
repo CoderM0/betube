@@ -24,7 +24,13 @@ export default function AuthLayout({ children, searchterm }) {
 
                 {/* <!-- Sidebar --> */}
                 <div className="hidden peer-checked:flex md:flex flex-col w-60 bg-white transition-all duration-300 ease-in-out">
-                    <Link href={route("dashboard")}>
+                    <Link
+                        href={
+                            user.role == 0
+                                ? route("admin.dashboard")
+                                : route("dashboard")
+                        }
+                    >
                         <ApplicationLogo />
                     </Link>
                     <div className="flex flex-col flex-1 ">

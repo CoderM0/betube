@@ -1,4 +1,5 @@
 import InputError from "@/Components/InputError";
+import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
@@ -22,7 +23,7 @@ export default function Register() {
     };
 
     return (
-        <div>
+        <GuestLayout>
             <Head title="Register" />
 
             <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
@@ -190,6 +191,6 @@ export default function Register() {
                     </div>
                 </form>
             </div>
-        </div>
+        </GuestLayout>
     );
 }
