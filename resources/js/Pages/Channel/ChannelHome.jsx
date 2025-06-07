@@ -1,8 +1,10 @@
+import CHead from "@/Components/CHead";
 import ViewChannel from "./ViewChannel";
 
 export default function ChannelHome({ channel, video }) {
     return (
         <ViewChannel channel={channel}>
+            <CHead title={`${channel.channel_name} - Home`} />
             <div className=" flex ">
                 <div className="w-1/3 rounded-xl">
                     <video controls>

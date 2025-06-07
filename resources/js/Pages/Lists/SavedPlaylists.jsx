@@ -1,9 +1,12 @@
+import CHead from "@/Components/CHead";
 import PlayListCard from "@/Components/PlayListCard";
 import AuthLayout from "@/Layouts/AuthLayout";
 
 export default function SavedPlaylists({ playlists }) {
     return (
         <AuthLayout>
+            <CHead title={`Saved PlayLists`} />
+
             <div className="mt-2">
                 <p className="font-bold my-2">Saved PlayLists</p>
                 {playlists.length == 0 ? (

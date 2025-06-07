@@ -1,3 +1,4 @@
+import CHead from "@/Components/CHead";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Link } from "@inertiajs/react";
 import { format } from "date-fns";
@@ -22,6 +23,7 @@ export default function AdminChannelView({ channel }) {
     };
     return (
         <AuthenticatedLayout>
+            <CHead title={`Admin - ${channel.channel_name} `} />
             <div className="w-11/12 mx-auto my-2 p-2">
                 <div className="my-2 flex justify-between gap-2 items-center">
                     <img

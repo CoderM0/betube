@@ -1,3 +1,4 @@
+import CHead from "@/Components/CHead";
 import NavLink from "@/Components/NavLink";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Link } from "@inertiajs/react";
@@ -6,6 +7,8 @@ import { MdEdit } from "react-icons/md";
 export default function MyChannelView({ channel, children }) {
     return (
         <AuthLayout>
+            <CHead title={channel.channel_name} />
+
             <div className="border rounded-xl px-2">
                 <div className="relative">
                     <div className="w-full flex justify-center items-center  h-48 ">

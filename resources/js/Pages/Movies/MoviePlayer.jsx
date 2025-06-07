@@ -1,9 +1,12 @@
+import CHead from "@/Components/CHead";
 import PlayerLayout from "@/Layouts/PlayerLayout";
 
 export default function MoviePlayer({ movie, recommendations }) {
     console.log(recommendations);
     return (
         <PlayerLayout>
+            <CHead title={movie.title} />
+
             <main class="flex-grow  mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
                 <section class="md:col-span-2 space-y-4">
                     <div class="w-full aspect-video bg-black rounded overflow-hidden shadow-lg">

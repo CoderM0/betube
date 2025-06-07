@@ -1,10 +1,11 @@
 import ApplicationLogo from "@/Components/ApplicationLogo";
-import { Head, Link } from "@inertiajs/react";
+import CHead from "@/Components/CHead";
+import { Link } from "@inertiajs/react";
 
 export default function Welcome({ auth }) {
     return (
         <>
-            <Head title="Welcome" />
+            <CHead title={`Welcome`} />
 
             <div>
                 <header class="sticky top-0 bg-white shadow">

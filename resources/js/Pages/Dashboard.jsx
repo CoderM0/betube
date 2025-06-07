@@ -1,6 +1,6 @@
+import CHead from "@/Components/CHead";
 import VideoItem from "@/Components/VideoItem";
 import AuthLayout from "@/Layouts/AuthLayout";
-import { Head } from "@inertiajs/react";
 
 export default function Dashboard({ videos }) {
     console.log(videos);
@@ -12,7 +12,7 @@ export default function Dashboard({ videos }) {
                 </h2>
             }
         >
-            <Head title="Dashboard" />
+            <CHead title={`Home`} />
 
             <div className="flex flex-wrap gap-5 my-2">
                 {videos.map((vid) => {

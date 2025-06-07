@@ -1,3 +1,4 @@
+import CHead from "@/Components/CHead";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
@@ -23,6 +24,8 @@ export default function CreateChannel() {
     };
     return (
         <AuthLayout>
+            <CHead title={`create channel`} />
+
             <form className="" onSubmit={create_channel}>
                 <div className="relative">
                     <div className="w-full flex justify-center items-center bg-gray-200 h-48 ">

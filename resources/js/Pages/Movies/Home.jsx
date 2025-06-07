@@ -1,3 +1,4 @@
+import CHead from "@/Components/CHead";
 import MovieCard from "@/Components/MovieCard";
 import Paginator from "@/Components/Paginator";
 import AuthLayout from "@/Layouts/AuthLayout";
@@ -5,6 +6,8 @@ import AuthLayout from "@/Layouts/AuthLayout";
 export default function Home({ movies }) {
     return (
         <AuthLayout>
+            <CHead title={`Movies - Home`} />
+
             {movies.links && <Paginator links={movies.links} />}
 
             {movies.data.length > 0 ? (

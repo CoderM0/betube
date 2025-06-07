@@ -1,3 +1,4 @@
+import CHead from "@/Components/CHead";
 import VideoListItem from "@/Components/VideoListItem";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Link } from "@inertiajs/react";
@@ -6,6 +7,8 @@ export default function LikedVideos({ videos, list_name, type }) {
     console.log("hh", videos);
     return (
         <AuthLayout>
+            <CHead title={`Liked Videos`} />
+
             {videos.length == 0 ? (
                 <p className="text-center font-bold text-xl my-4">
                     You dont have {list_name} yet

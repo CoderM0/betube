@@ -1,3 +1,4 @@
+import CHead from "@/Components/CHead";
 import VideoListItem from "@/Components/VideoListItem";
 import VideoPlayer from "@/Components/VideoPlayer";
 import PlayerLayout from "@/Layouts/PlayerLayout";
@@ -10,6 +11,8 @@ export default function PlayerHome({
 }) {
     return (
         <PlayerLayout>
+            <CHead title={video.title} />
+
             <div className="flex justify-between">
                 <VideoPlayer
                     video={video}

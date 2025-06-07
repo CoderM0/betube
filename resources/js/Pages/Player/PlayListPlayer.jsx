@@ -1,3 +1,4 @@
+import CHead from "@/Components/CHead";
 import PlayListItem from "@/Components/PlayListItem";
 import VideoPlayer from "@/Components/VideoPlayer";
 import PlayerLayout from "@/Layouts/PlayerLayout";
@@ -64,6 +65,7 @@ export default function PlayListPlayer({
 
     return (
         <PlayerLayout>
+            <CHead title={video.title} />
             <div className="flex mt-3">
                 <VideoPlayer
                     video={currentVideo}
