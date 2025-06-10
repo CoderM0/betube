@@ -62,10 +62,10 @@ export default function PlayListPlayer({
             );
         }
     };
-    console.log("vis here", videos[0].title);
+
     return (
         <PlayerLayout>
-            <CHead title={videos[0].title} />
+            <CHead title={videos[currentIndex].title} />
             <div className="flex mt-3">
                 <VideoPlayer
                     video={currentVideo}
